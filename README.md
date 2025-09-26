@@ -2,5 +2,5 @@
 
 ## 1. Project Setup
 
-- [ ] Create Next.js App
-- [ ] Run App
+- [x] Create Next.js App
+- [x] Run App
