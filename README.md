@@ -9,6 +9,15 @@
 
 - [x] Install shadcn (UI Component Library)
 - [x] Setup Dark Theme
-- [x] Create Github Repository
+- [x] Create GitHub Repository
 - [x] Create branches and push your changes
-- [ ] Code Review by CodeRabbit
+- [x] Code Review by CodeRabbit
+
+## 3. Sidebar
+
+- [ ] Add Sidebar
+- [ ] Logo
+- [ ] Menu Option
+- [ ] Footer
+- [ ] Push code to GitHub
+- [ ] Review with CodeRabbit
