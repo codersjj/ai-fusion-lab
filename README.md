@@ -32,8 +32,18 @@
 
 ## 5. Database Setup
 
-- [ ] Create Firebase project
-- [ ] Firebase Firestore DB Setup
-- [ ] Add config to project
+- [x] Create Firebase project
+- [x] Firebase Firestore DB Setup
+- [x] Add config to project
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 6. Authentication
+
+- [ ] Clerk Email / Password Auth
+- [ ] Gmail auth
+- [ ] Save user info to Database
+- [ ] Update Sidebar with Footer
+- [ ] Credit Usage
 - [ ] Push code to GitHub
 - [ ] Review with CodeRabbit
