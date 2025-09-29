@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { MessageSquare } from "lucide-react";
+import { Lock, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function AIMultiModels() {
   const [modelList, setModelList] = useState(models);
@@ -116,129 +117,12 @@ function AIMultiModels() {
                 maxHeight: "calc(75vh - 60px)",
               }}
             >
-              {enable && (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium text-lg">{model}</h3>
-                    {premium && (
-                      <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded mt-2">
-                        Premium
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 模拟内容区域 - 自适应宽度 */}
-                  <div className="space-y-4 text-sm text-gray-600">
-                    <p>Model capabilities and features (33% min-width)...</p>
-                    <div className="h-32 bg-gray-50 rounded border-2 border-dashed border-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">
-                        Min 33% Width Content
-                      </span>
-                    </div>
-
-                    {/* 展示自适应效果的额外内容 */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="p-3 bg-blue-50 rounded text-xs">
-                        Feature 1
-                      </div>
-                      <div className="p-3 bg-green-50 rounded text-xs">
-                        Feature 2
-                      </div>
-                      <div className="p-3 bg-purple-50 rounded text-xs">
-                        Feature 3
-                      </div>
-                      <div className="p-3 bg-orange-50 rounded text-xs">
-                        Feature 4
-                      </div>
-                    </div>
-
-                    {/* 添加更多内容来演示滚动效果 */}
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-gray-800">
-                        Configuration Options:
-                      </h4>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-white border rounded shadow-sm">
-                          <div className="font-medium text-xs text-gray-700">
-                            Temperature
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Controls randomness in output
-                          </div>
-                        </div>
-                        <div className="p-3 bg-white border rounded shadow-sm">
-                          <div className="font-medium text-xs text-gray-700">
-                            Max Tokens
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Maximum response length
-                          </div>
-                        </div>
-                        <div className="p-3 bg-white border rounded shadow-sm">
-                          <div className="font-medium text-xs text-gray-700">
-                            Top-p
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Nucleus sampling parameter
-                          </div>
-                        </div>
-                        <div className="p-3 bg-white border rounded shadow-sm">
-                          <div className="font-medium text-xs text-gray-700">
-                            Frequency Penalty
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Reduces repetition
-                          </div>
-                        </div>
-                        <div className="p-3 bg-white border rounded shadow-sm">
-                          <div className="font-medium text-xs text-gray-700">
-                            Presence Penalty
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Encourages topic diversity
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 统计信息 */}
-                    <div className="mt-4 p-3 bg-gray-100 rounded">
-                      <h4 className="font-medium text-xs text-gray-800 mb-2">
-                        Model Statistics
-                      </h4>
-                      <div className="space-y-1 text-xs text-gray-600">
-                        <div className="flex justify-between">
-                          <span>Parameters:</span>
-                          <span>175B</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Training Data:</span>
-                          <span>2023</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Context Length:</span>
-                          <span>32k tokens</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Response Time:</span>
-                          <span>~2-5s</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 额外的演示内容确保需要滚动 */}
-                    <div className="mt-4 space-y-2">
-                      <div className="h-16 bg-red-50 rounded flex items-center justify-center text-xs text-red-600">
-                        Demo Content Block 1
-                      </div>
-                      <div className="h-16 bg-blue-50 rounded flex items-center justify-center text-xs text-blue-600">
-                        Demo Content Block 2
-                      </div>
-                      <div className="h-16 bg-green-50 rounded flex items-center justify-center text-xs text-green-600">
-                        Demo Content Block 3
-                      </div>
-                    </div>
-                  </div>
+              {enable && premium && (
+                <div className="h-full flex justify-center items-center">
+                  <Button className="flex items-center cursor-pointer">
+                    <Lock />
+                    <span>Upgrade to unlock</span>
+                  </Button>
                 </div>
               )}
             </div>
