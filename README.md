@@ -24,8 +24,16 @@
 
 ## 4. Layout
 
-- [ ] Chat Input Box
-- [ ] Header
-- [ ] Default Sign In Screen
+- [x] Chat Input Box
+- [x] Header
+- [x] Default Sign In Screen
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 5. Database Setup
+
+- [ ] Create Firebase project
+- [ ] Firebase Firestore DB Setup
+- [ ] Add config to project
 - [ ] Push code to GitHub
 - [ ] Review with CodeRabbit
