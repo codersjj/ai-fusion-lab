@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { Moon, Sun, User2, Zap } from "lucide-react";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "../../hooks/use-mobile";
+import UsageCreditProgress from "./UsageCreditProgress";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -54,6 +56,8 @@ export function AppSidebar() {
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const isMobile = useIsMobile();
   const { openMobile, setOpen } = useSidebar();
+
+  const { isSignedIn, user } = useUser();
 
   useEffect(() => {
     if (isMobile) {
@@ -109,24 +113,52 @@ export function AppSidebar() {
               />
             </div>
           </div>
-          <Button size={"lg"} className="w-full mt-6 cursor-pointer">
-            + New Chat
-          </Button>
+          {user ? (
+            <Button size={"lg"} className="w-full mt-6 cursor-pointer">
+              + New Chat
+            </Button>
+          ) : (
+            <SignInButton mode="modal">
+              <Button size={"lg"} className="w-full mt-6 cursor-pointer">
+                + New Chat
+              </Button>
+            </SignInButton>
+          )}
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
             <div className="flex flex-col gap-1">
               <h3 className="font-semibold text-lg">Chat</h3>
-              <p className="text-sm text-neutral-500">
-                Sign in to start chatting with multiple AI models
-              </p>
+              {!isSignedIn && (
+                <p className="text-sm text-neutral-500">
+                  Sign in to start chatting with multiple AI models
+                </p>
+              )}
             </div>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <Button size={"lg"} className="w-full cursor-pointer">
-            Sign In/Sign Up
-          </Button>
+          {!isSignedIn ? (
+            <SignInButton mode="modal">
+              <Button size={"lg"} className="w-full cursor-pointer">
+                Sign In/Sign Up
+              </Button>
+            </SignInButton>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <UsageCreditProgress />
+              <Button className="cursor-pointer">
+                <Zap /> Upgrade Plan
+              </Button>
+              <Button
+                className="flex justify-center items-center gap-2 border border-violet-300 w-full"
+                variant={"ghost"}
+              >
+                <User2 />
+                <h3>{user.firstName}</h3>
+              </Button>
+            </div>
+          )}
         </SidebarFooter>
       </Sidebar>
       <div
