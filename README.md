@@ -15,9 +15,17 @@
 
 ## 3. Sidebar
 
-- [ ] Add Sidebar
-- [ ] Logo
-- [ ] Menu Option
-- [ ] Footer
+- [x] Add Sidebar
+- [x] Logo
+- [x] Menu Option
+- [x] Footer
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 4. Layout
+
+- [ ] Chat Input Box
+- [ ] Header
+- [ ] Default Sign In Screen
 - [ ] Push code to GitHub
 - [ ] Review with CodeRabbit
