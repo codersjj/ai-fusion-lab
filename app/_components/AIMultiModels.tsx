@@ -1,21 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Image from "next/image";
+import { Lock, MessageSquare } from "lucide-react";
 import models from "@/shared/models";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Lock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SelectedAIModelContext from "@/context/SelectedAIModelContext";
+import { db } from "@/config/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
+import { useUser } from "@clerk/nextjs";
 
 function AIMultiModels() {
   const [modelList, setModelList] = useState(models);
+  const { user } = useUser();
+  const { selectedAIModel, setSelectedAIModel } = useContext(
+    SelectedAIModelContext
+  );
+
+  const handleSelectChange = async (parentModel: string, value: string) => {
+    const newModel = {
+      ...selectedAIModel,
+      [parentModel]: { modelId: value },
+    };
+
+    setSelectedAIModel(newModel);
+
+    // Update to Firebase Database
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+    const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
+    try {
+      await updateDoc(docRef, {
+        selectedModelPreference: newModel,
+      });
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  };
 
   const handleCheckedChange = (targetModel: string, checked: boolean) => {
     setModelList((prevList) =>
@@ -69,16 +99,37 @@ function AIMultiModels() {
                   }}
                 >
                   {subModel && subModel.length > 0 && (
-                    <Select>
+                    <Select
+                      value={selectedAIModel[model].modelId}
+                      onValueChange={(value) =>
+                        handleSelectChange(model, value)
+                      }
+                      disabled={!enable || premium}
+                    >
                       <SelectTrigger className="w-30 md:w-55">
                         <SelectValue placeholder={subModel[0].name} />
                       </SelectTrigger>
                       <SelectContent>
-                        {subModel.map(({ name }) => (
-                          <SelectItem key={name} value={name}>
-                            {name}
-                          </SelectItem>
-                        ))}
+                        <SelectGroup>
+                          <SelectLabel>Free</SelectLabel>
+                          {subModel
+                            .filter(({ premium }) => !premium)
+                            .map(({ id, name }) => (
+                              <SelectItem key={name} value={id}>
+                                {name}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Premium</SelectLabel>
+                          {subModel
+                            .filter(({ premium }) => premium)
+                            .map(({ id, name }) => (
+                              <SelectItem key={name} value={id} disabled>
+                                {name} <Lock />
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
                       </SelectContent>
                     </Select>
                   )}

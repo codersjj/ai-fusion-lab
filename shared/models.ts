@@ -5,13 +5,13 @@ const models = [
     premium: false,
     enable: true,
     subModel: [
-      { name: "GPT 3.5", premium: false, id: "" },
-      { name: "GPT 3.5 Turbo", premium: false, id: "" },
-      { name: "GPT 4.1 Mini", premium: false, id: "" },
-      { name: "GPT 4.1", premium: false, id: "" },
-      { name: "GPT 5 Nano", premium: false, id: "" },
-      { name: "GPT 5 Mini", premium: false, id: "" },
-      { name: "GPT 5", premium: true, id: "" },
+      { name: "GPT 3.5", premium: false, id: "gpt-3.5" },
+      { name: "GPT 3.5 Turbo", premium: false, id: "gpt-3.5-turbo" },
+      { name: "GPT 4.1 Mini", premium: false, id: "gpt-4.1-mini" },
+      { name: "GPT 4.1", premium: false, id: "gpt-4.1" },
+      { name: "GPT 5 Nano", premium: false, id: "gpt-5-nano" },
+      { name: "GPT 5 Mini", premium: false, id: "gpt-5-mini" },
+      { name: "GPT 5", premium: true, id: "gpt-5" },
     ],
   },
   {
@@ -20,9 +20,13 @@ const models = [
     premium: false,
     enable: true,
     subModel: [
-      { name: "Gemini 2.5 Lite", premium: false },
-      { name: "Gemini 2.5 Flash", premium: false },
-      { name: "Gemini 2.5 Pro", premium: true },
+      { name: "Gemini 2.5 Flash", premium: false, id: "gemini-2.5-flash" },
+      {
+        name: "Gemini 2.5 Flash Lite",
+        premium: false,
+        id: "gemini-2.5-flash-lite",
+      },
+      { name: "Gemini 2.5 Pro", premium: true, id: "gemini-2.5-pro" },
     ],
   },
   {
@@ -31,8 +35,8 @@ const models = [
     premium: false,
     enable: true,
     subModel: [
-      { name: "DeepSeek R1", premium: false, id: "" },
-      { name: "DeepSeek R1 0528", premium: true, id: "" },
+      { name: "DeepSeek R1", premium: false, id: "DeepSeek-R1" },
+      { name: "DeepSeek R1 0528", premium: true, id: "DeepSeek-R1-0528" },
     ],
   },
   {
@@ -41,8 +45,8 @@ const models = [
     premium: true,
     enable: false,
     subModel: [
-      { name: "Mistral Medium 2505", premium: true, id: "" },
-      { name: "Mistral 3B", premium: false, id: "" },
+      { name: "Mistral Medium 2505", premium: true, id: "mistral-medium-2505" },
+      { name: "Mistral 3B", premium: false, id: "mistral-3B" },
     ],
   },
   {
@@ -51,8 +55,8 @@ const models = [
     premium: true,
     enable: false,
     subModel: [
-      { name: "Grok 3 Mini", premium: false, id: "" },
-      { name: "Grok 3", premium: true, id: "" },
+      { name: "Grok 3 Mini", premium: false, id: "grok-3-mini" },
+      { name: "Grok 3", premium: true, id: "grok-3" },
     ],
   },
   {
@@ -61,8 +65,12 @@ const models = [
     premium: true,
     enable: false,
     subModel: [
-      { name: "Cohere Command A", premium: false, id: "" },
-      { name: "Cohere Command R 08-2024", premium: false, id: "" },
+      { name: "Cohere Command A", premium: false, id: "cohere-command-a" },
+      {
+        name: "Cohere Command R 08-2024",
+        premium: false,
+        id: "cohere-command-r-08-2024",
+      },
     ],
   },
   {
@@ -71,10 +79,32 @@ const models = [
     premium: true,
     enable: false,
     subModel: [
-      { name: "Llama 3.3 70B Instruct", premium: true, id: "" },
-      { name: "Llama 4 Scout 17B 16E Instruct", premium: true, id: "" },
+      {
+        name: "Llama 3.3 70B Instruct",
+        premium: true,
+        id: "Llama-3.3-70B-Instruct",
+      },
+      {
+        name: "Llama 4 Scout 17B 16E Instruct",
+        premium: true,
+        id: "Llama-4-Scout-17B-16E-Instruct",
+      },
     ],
   },
 ];
+
+export interface DefaultModel {
+  [key: string]: { modelId: string };
+}
+
+export const defaultModel: DefaultModel = {
+  GPT: { modelId: "gpt-4.1-mini" },
+  Gemini: { modelId: "gemini-2.5-flash-lite" },
+  DeepSeek: { modelId: "DeepSeek-R1" },
+  Mistral: { modelId: "mistral-medium-2505" },
+  Grok: { modelId: "grok-3-mini" },
+  Cohere: { modelId: "cohere-command-a" },
+  Llama: { modelId: "Llama-3.3-70B-Instruct" },
+};
 
 export default models;
