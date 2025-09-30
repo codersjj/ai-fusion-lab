@@ -63,3 +63,11 @@
 - [x] Get User Setting Info From Firebase
 - [x] Push code to GitHub
 - [x] Review with CodeRabbit
+
+## 9. Setup Multiple AI Model API
+
+- [ ] Generate KravixStudio Developer API for Multiple Models
+- [ ] Setup API Endpoint
+- [ ] Test API
+- [ ] Push code to GitHub
+- [ ] Review with CodeRabbit
