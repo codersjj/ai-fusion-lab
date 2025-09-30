@@ -40,10 +40,17 @@
 
 ## 6. Authentication
 
-- [ ] Clerk Email / Password Auth
-- [ ] Gmail auth
-- [ ] Save user info to Database
-- [ ] Update Sidebar with Footer
-- [ ] Credit Usage
+- [x] Clerk Email / Password Auth
+- [x] Gmail auth
+- [x] Save user info to Database
+- [x] Update Sidebar with Footer
+- [x] Credit Usage
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 7. User Daily Limit
+
+- [ ] Arcjet Setup
+- [ ] Daily Limit Usage
 - [ ] Push code to GitHub
 - [ ] Review with CodeRabbit
