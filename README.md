@@ -50,7 +50,16 @@
 
 ## 7. User Daily Limit
 
-- [ ] Arcjet Setup
-- [ ] Daily Limit Usage
-- [ ] Push code to GitHub
-- [ ] Review with CodeRabbit
+- [x] Arcjet Setup
+- [x] Daily Limit Usage
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 8. Save User Selected AI Models
+
+- [x] Group AI Models (Free & Premium)
+- [x] Save User Selected Models
+- [x] Share Selected Models using Context
+- [x] Get User Setting Info From Firebase
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
