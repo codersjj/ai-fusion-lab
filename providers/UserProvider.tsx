@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/config/firebaseConfig";
 import { useUser } from "@clerk/nextjs";
-import SelectedAIModelContext from "@/context/SelectedAIModelContext";
+import ChatInputBoxContext, { Message } from "@/context/ChatInputBoxContext";
 import { defaultModel } from "@/shared/models";
 import UserDetailContext, { UserDetail } from "@/context/UserDetailContext";
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [selectedAIModel, setSelectedAIModel] = useState(defaultModel);
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
+  const [messages, setMessages] = useState<Message>(null as unknown as Message);
 
   const { user } = useUser();
 
@@ -56,9 +57,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <UserDetailContext value={{ userDetail, setUserDetail }}>
-      <SelectedAIModelContext value={{ selectedAIModel, setSelectedAIModel }}>
+      <ChatInputBoxContext
+        value={{ selectedAIModel, setSelectedAIModel, messages, setMessages }}
+      >
         {children}
-      </SelectedAIModelContext>
+      </ChatInputBoxContext>
     </UserDetailContext>
   );
 }

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import SelectedAIModelContext from "@/context/SelectedAIModelContext";
+import SelectedAIModelContext from "@/context/ChatInputBoxContext";
 import { db } from "@/config/firebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs";
@@ -100,7 +100,7 @@ function AIMultiModels() {
                 >
                   {subModel && subModel.length > 0 && (
                     <Select
-                      value={selectedAIModel[model].modelId}
+                      value={selectedAIModel[model]?.modelId}
                       onValueChange={(value) =>
                         handleSelectChange(model, value)
                       }
