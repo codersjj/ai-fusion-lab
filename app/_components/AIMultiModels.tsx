@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, memo } from "react";
 import Image from "next/image";
 import { Lock, MessageSquare, Loader } from "lucide-react";
 import Markdown from "react-markdown";
@@ -210,4 +210,4 @@ function AIMultiModels() {
   );
 }
 
-export default AIMultiModels;
+export default memo(AIMultiModels);

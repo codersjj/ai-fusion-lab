@@ -1,14 +1,15 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { ArrowUp, Mic, Paperclip } from "lucide-react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import AIMultiModels from "./AIMultiModels";
 import ChatInputBoxContext from "@/context/ChatInputBoxContext";
+import { useDebouncedState } from "@/hooks/use-debounced-state";
 
 function ChatInputBox() {
-  const [userInput, setUserInput] = useState("");
-  const { selectedAIModel, setSelectedAIModel, messages, setMessages } =
+  const [inputValue, userInput, setUserInput] = useDebouncedState("");
+  const { selectedAIModel, messages, setMessages } =
     useContext(ChatInputBoxContext);
 
   const handleSend = () => {
@@ -123,7 +124,7 @@ function ChatInputBox() {
         <Textarea
           className="md:px-4.5 md:py-3.5 w-full h-full min-h-30 resize-none rounded-3xl"
           placeholder="Ask me anything..."
-          value={userInput}
+          value={inputValue}
           onChange={(e) => setUserInput(e.target.value)}
         />
         <div className="absolute bottom-2 left-0 flex justify-between w-full px-2 md:px-4.5">
