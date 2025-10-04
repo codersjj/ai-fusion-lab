@@ -3,6 +3,8 @@
 import { useContext, useState } from "react";
 import Image from "next/image";
 import { Lock, MessageSquare, Loader } from "lucide-react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import models from "@/shared/models";
 import {
   Select,
@@ -59,8 +61,8 @@ function AIMultiModels() {
       ...prev,
       [targetModel]: {
         ...prev[targetModel],
-        enable: checked
-      }
+        enable: checked,
+      },
     }));
   };
 
@@ -198,7 +200,9 @@ function AIMultiModels() {
                               Thinking...
                             </span>
                           ) : (
-                            message.content
+                            <Markdown remarkPlugins={[remarkGfm]}>
+                              {message.content}
+                            </Markdown>
                           )}
                         </p>
                       </div>
