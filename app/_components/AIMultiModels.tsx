@@ -2,7 +2,7 @@
 
 import { useContext, useState } from "react";
 import Image from "next/image";
-import { Lock, MessageSquare } from "lucide-react";
+import { Lock, MessageSquare, Loader } from "lucide-react";
 import models from "@/shared/models";
 import {
   Select,
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import SelectedAIModelContext from "@/context/ChatInputBoxContext";
+import ChatInputBoxContext from "@/context/ChatInputBoxContext";
 import { db } from "@/config/firebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs";
@@ -23,9 +23,9 @@ import { useUser } from "@clerk/nextjs";
 function AIMultiModels() {
   const [modelList, setModelList] = useState(models);
   const { user } = useUser();
-  const { selectedAIModel, setSelectedAIModel } = useContext(
-    SelectedAIModelContext
-  );
+  const { selectedAIModel, setSelectedAIModel, messages } =
+    useContext(ChatInputBoxContext);
+  console.log("🚀 ~ AIMultiModels ~ messages:", messages);
 
   const handleSelectChange = async (parentModel: string, value: string) => {
     const newModel = {
@@ -100,7 +100,7 @@ function AIMultiModels() {
                 >
                   {subModel && subModel.length > 0 && (
                     <Select
-                      value={selectedAIModel[model]?.modelId}
+                      value={selectedAIModel?.[model]?.modelId}
                       onValueChange={(value) =>
                         handleSelectChange(model, value)
                       }
@@ -168,6 +168,35 @@ function AIMultiModels() {
                 maxHeight: "calc(75vh - 60px)",
               }}
             >
+              {enable && !premium && (
+                <div className="flex flex-col gap-4">
+                  {messages &&
+                    messages[model].map((message, index) => (
+                      <div
+                        key={index}
+                        className={`p-3 rounded-lg ${
+                          message.role === "user"
+                            ? "bg-blue-100 dark:bg-blue-950 self-end"
+                            : "bg-gray-200 dark:bg-gray-600 self-start"
+                        }`}
+                      >
+                        <h3 className="font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
+                          {message.role === "user" ? "You" : model}
+                        </h3>
+                        <p className="text-sm">
+                          {message.content === "Thinking..." ? (
+                            <span className="animate-pulse flex gap-1 items-center">
+                              <Loader className="animate-spin" />
+                              Thinking...
+                            </span>
+                          ) : (
+                            message.content
+                          )}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              )}
               {enable && premium && (
                 <div className="h-full flex justify-center items-center">
                   <Button className="flex items-center cursor-pointer">

@@ -4,14 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/config/firebaseConfig";
 import { useUser } from "@clerk/nextjs";
-import ChatInputBoxContext, { Message } from "@/context/ChatInputBoxContext";
+import ChatInputBoxContext, { Messages } from "@/context/ChatInputBoxContext";
 import { defaultModel } from "@/shared/models";
 import UserDetailContext, { UserDetail } from "@/context/UserDetailContext";
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [selectedAIModel, setSelectedAIModel] = useState(defaultModel);
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
-  const [messages, setMessages] = useState<Message>(null as unknown as Message);
+  const [messages, setMessages] = useState<Messages>(
+    null as unknown as Messages
+  );
 
   const { user } = useUser();
 
@@ -40,12 +42,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         remainingMsg: 5,
         credits: 1000,
         createdAt: new Date(),
+        selectedModelPreference: defaultModel,
       };
 
       await setDoc(userRef, userData);
       console.log("New user data saved");
 
       setUserDetail(userData as UserDetail);
+      setSelectedAIModel(defaultModel);
     } catch (error) {
       console.error("Error creating user:", error);
     }
