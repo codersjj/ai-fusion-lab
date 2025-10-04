@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/config/firebaseConfig";
 import { useUser } from "@clerk/nextjs";
 import ChatInputBoxContext, { Messages } from "@/context/ChatInputBoxContext";
@@ -58,6 +58,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     createNewUser();
   }, [createNewUser]);
+
+  const updateSelectedAIModel = useCallback(async () => {
+    // Update to Firebase Database
+    if (!user?.primaryEmailAddress?.emailAddress) return;
+    const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
+    try {
+      await updateDoc(docRef, {
+        selectedModelPreference: selectedAIModel,
+      });
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  }, [user, selectedAIModel]);
+
+  useEffect(() => {
+    updateSelectedAIModel();
+  }, [updateSelectedAIModel]);
 
   return (
     <UserDetailContext value={{ userDetail, setUserDetail }}>

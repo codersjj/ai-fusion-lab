@@ -18,13 +18,9 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import ChatInputBoxContext from "@/context/ChatInputBoxContext";
-import { db } from "@/config/firebaseConfig";
-import { doc, updateDoc } from "firebase/firestore";
-import { useUser } from "@clerk/nextjs";
 
 function AIMultiModels() {
   const [modelList, setModelList] = useState(models);
-  const { user } = useUser();
   const { selectedAIModel, setSelectedAIModel, messages } =
     useContext(ChatInputBoxContext);
   console.log("🚀 ~ AIMultiModels ~ messages:", messages);
@@ -36,17 +32,6 @@ function AIMultiModels() {
     };
 
     setSelectedAIModel(newModel);
-
-    // Update to Firebase Database
-    if (!user?.primaryEmailAddress?.emailAddress) return;
-    const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
-    try {
-      await updateDoc(docRef, {
-        selectedModelPreference: newModel,
-      });
-    } catch (error) {
-      console.error("Error updating document: ", error);
-    }
   };
 
   const handleCheckedChange = (targetModel: string, checked: boolean) => {
