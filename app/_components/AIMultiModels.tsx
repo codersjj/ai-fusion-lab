@@ -178,7 +178,7 @@ function AIMultiModels() {
                         <h3 className="font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
                           {message.role === "user" ? "You" : model}
                         </h3>
-                        <p className="text-sm">
+                        <div className="text-sm">
                           {message.content === "Thinking..." ? (
                             <span className="animate-pulse flex gap-1 items-center">
                               <Loader className="animate-spin" />
@@ -189,7 +189,7 @@ function AIMultiModels() {
                               {message.content}
                             </Markdown>
                           )}
-                        </p>
+                        </div>
                       </div>
                     ))}
                 </div>
