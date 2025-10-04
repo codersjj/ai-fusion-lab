@@ -66,8 +66,16 @@
 
 ## 9. Setup Multiple AI Model API
 
-- [ ] Generate KravixStudio Developer API for Multiple Models
-- [ ] Setup API Endpoint
-- [ ] Test API
+- [x] Generate KravixStudio Developer API for Multiple Models
+- [x] Setup API Endpoint
+- [x] Test API
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 10. Send Msg to Get AI Response
+
+- [x] Send user message
+- [x] Call API to Generate AI response for each AI Model
+- [ ] Display result (msg conversation)
 - [ ] Push code to GitHub
 - [ ] Review with CodeRabbit
