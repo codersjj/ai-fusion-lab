@@ -94,13 +94,13 @@ const models = [
 ];
 
 export interface DefaultModel {
-  [key: string]: { modelId: string };
+  [key: string]: { modelId: string; enable: boolean };
 }
 
 export const defaultModel: DefaultModel = {
-  GPT: { modelId: "gpt-4.1-mini" },
-  Gemini: { modelId: "gemini-2.5-flash-lite" },
-  DeepSeek: { modelId: "DeepSeek-R1" },
+  GPT: { modelId: "gpt-4.1-mini", enable: true },
+  Gemini: { modelId: "gemini-2.5-flash-lite", enable: true },
+  DeepSeek: { modelId: "DeepSeek-R1", enable: true },
   // Mistral: { modelId: "mistral-medium-2505" },
   // Grok: { modelId: "grok-3-mini" },
   // Cohere: { modelId: "cohere-command-a" },

@@ -30,7 +30,7 @@ function AIMultiModels() {
   const handleSelectChange = async (parentModel: string, value: string) => {
     const newModel = {
       ...selectedAIModel,
-      [parentModel]: { modelId: value },
+      [parentModel]: { modelId: value, enable: true },
     };
 
     setSelectedAIModel(newModel);
@@ -54,6 +54,14 @@ function AIMultiModels() {
         enable: targetModel === modelData.model ? checked : modelData.enable,
       }))
     );
+
+    setSelectedAIModel((prev) => ({
+      ...prev,
+      [targetModel]: {
+        ...prev[targetModel],
+        enable: checked
+      }
+    }));
   };
 
   return (
