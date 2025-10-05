@@ -145,7 +145,7 @@ function ChatInputBox() {
             </Button>
             <Button
               className="relative z-10 w-9 cursor-pointer rounded-full enabled:hover:bg-neutral-700 dark:enabled:hover:bg-neutral-300 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:hover:bg-primary"
-              disabled={userInput.trim() === ""}
+              disabled={inputValue.trim() === ""}
               onClick={handleSend}
             >
               <ArrowUp />
