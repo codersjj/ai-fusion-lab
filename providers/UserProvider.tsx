@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/config/firebaseConfig";
 import { useUser } from "@clerk/nextjs";
@@ -14,6 +14,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Messages>(
     null as unknown as Messages
   );
+
+  // 添加标志位，表示是否已经从数据库加载过数据
+  const isInitialized = useRef(false);
 
   const { user } = useUser();
 
@@ -31,6 +34,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.log("🚀 ~ UserProvider ~ userData:", userData);
         setSelectedAIModel(userData.selectedModelPreference);
         setUserDetail(userData as UserDetail);
+        isInitialized.current = true;
 
         return;
       }
@@ -50,6 +54,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       setUserDetail(userData as UserDetail);
       setSelectedAIModel(defaultModel);
+      isInitialized.current = true;
     } catch (error) {
       console.error("Error creating user:", error);
     }
@@ -62,6 +67,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const updateSelectedAIModel = useCallback(async () => {
     // Update to Firebase Database
     if (!user?.primaryEmailAddress?.emailAddress) return;
+    // 只有在初始化完成后才执行更新
+    if (!isInitialized.current) return;
     const docRef = doc(db, "users", user?.primaryEmailAddress?.emailAddress);
     try {
       await updateDoc(docRef, {
