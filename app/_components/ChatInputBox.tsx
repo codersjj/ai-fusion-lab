@@ -8,12 +8,12 @@ import ChatInputBoxContext from "@/context/ChatInputBoxContext";
 import { useDebouncedState } from "@/hooks/use-debounced-state";
 
 function ChatInputBox() {
-  const [inputValue, userInput, setUserInput] = useDebouncedState("");
+  const [inputValue, , setUserInput] = useDebouncedState("");
   const { selectedAIModel, messages, setMessages } =
     useContext(ChatInputBoxContext);
 
   const handleSend = () => {
-    if (userInput.trim() === "") return;
+    if (inputValue.trim() === "") return;
 
     // 1. Add user message to all enabled models
     setMessages((prev) => {
@@ -22,7 +22,7 @@ function ChatInputBox() {
         if (selectedAIModel[modelKey].enable) {
           updated[modelKey] = [
             ...(updated[modelKey] ?? []),
-            { role: "user", content: userInput },
+            { role: "user", content: inputValue },
           ];
         }
       });
@@ -30,7 +30,7 @@ function ChatInputBox() {
       return updated;
     });
 
-    const currentInput = userInput;
+    const currentInput = inputValue;
     setUserInput("");
 
     // 2. Fetch response from the API for each enabled model
