@@ -230,7 +230,7 @@ export function AppSidebar() {
                   <span className="text-sm text-neutral-500">
                     {chat.elapsedTime}
                   </span>
-                  <h3 className="text-base">{chat.lastMessage}</h3>
+                  <h3 className="text-base line-clamp-1">{chat.lastMessage}</h3>
                 </Link>
               ))}
             </div>
