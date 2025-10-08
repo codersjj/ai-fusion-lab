@@ -28,6 +28,10 @@ function ChatInputBox() {
   const hasCreatedNewChat = useRef(false);
   // 追踪是否正在加载历史消息
   const isLoadingHistory = useRef(false);
+  // 追踪用户是否主动发送了消息（用于区分新聊天和历史会话切换）
+  const hasUserSentMessage = useRef(false);
+  // 追踪是否已经保存过当前对话（避免重复保存）
+  const hasSavedConversation = useRef(false);
 
   useEffect(() => {
     const urlChatId = params.get("chatId");
@@ -58,15 +62,41 @@ function ChatInputBox() {
   }, [params]); // 只依赖 params
 
   useEffect(() => {
-    const chatId = params.get("chatId");
-    // console.log("🚀 ~ ChatInputBox ~ chatId:", chatId);
-    setChatId(chatId || ""); // 如果没有 chatId，设置为空字符串
-    hasCreatedNewChat.current = false; // 重置标记
-    // 不要在这里重置 isLoadingHistory.current，让 getMessages 来控制
-  }, [params]);
+    const newChatId = params.get("chatId");
+    const oldChatId = chatId;
+
+    console.log("🔍 Params useEffect triggered:", { newChatId, oldChatId });
+
+    setChatId(newChatId || ""); // 如果没有 chatId，设置为空字符串
+
+    // 只有在真正切换会话时才重置标记（从有chatId切换到另一个chatId，或者从有chatId切换到无chatId）
+    // 如果是从无chatId到有chatId（创建新会话），不要重置标记
+    if (oldChatId && oldChatId !== (newChatId || "")) {
+      console.log("🔄 Switching between conversations, resetting flags");
+      hasCreatedNewChat.current = false;
+      hasUserSentMessage.current = false;
+      hasSavedConversation.current = false;
+    } else if (!oldChatId && !newChatId) {
+      // 如果都是在无chatId状态，也重置标记（比如刷新页面）
+      console.log("🔄 No chatId in both states, resetting flags");
+      hasCreatedNewChat.current = false;
+      hasUserSentMessage.current = false;
+      hasSavedConversation.current = false;
+    } else {
+      console.log("🔄 Creating new chatId, keeping user flags");
+      // 创建新chatId时，保持用户发送消息的标记
+      hasCreatedNewChat.current = false;
+      // 不重置 hasUserSentMessage 和 hasSavedConversation
+    }
+  }, [params, chatId]);
 
   const handleSend = () => {
     if (inputValue.trim() === "") return;
+
+    // 标记用户主动发送了消息
+    hasUserSentMessage.current = true;
+    // 重置保存标记，因为这是新的对话内容
+    hasSavedConversation.current = false;
 
     // 1. Add user message to all enabled models
     setMessages((prev) => {
@@ -190,6 +220,9 @@ function ChatInputBox() {
       updatedAt: new Date(),
     });
 
+    // 标记已经保存过
+    hasSavedConversation.current = true;
+
     // 保存完成后触发回调
     if (onConversationSaved) {
       onConversationSaved();
@@ -209,15 +242,45 @@ function ChatInputBox() {
         return; // 首次加载不保存
       }
 
-      // 额外检查：确保 chatId 不为空字符串
-      if (!chatId || chatId === "") {
+      // 只有在用户主动发送消息后才保存对话
+      if (!hasUserSentMessage.current) {
+        console.log(
+          "📋 Messages updated but user didn't send message, skipping save"
+        );
         return;
       }
 
+      // 额外检查：确保 chatId 不为空字符串
+      if (!chatId || chatId === "") {
+        console.log("💾 Waiting for chatId to be created before saving");
+        return;
+      }
+
+      // 避免重复保存
+      if (hasSavedConversation.current) {
+        console.log("💾 Conversation already saved, skipping");
+        return;
+      }
+
+      console.log("💾 User sent message, saving conversation");
       saveConversation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
+
+  // 当 chatId 创建后，如果有用户发送的消息，立即保存对话
+  useEffect(() => {
+    // 只有在用户发送了消息且有 chatId 且还没有保存过时才保存
+    if (
+      hasUserSentMessage.current &&
+      chatId &&
+      chatId !== "" &&
+      !hasSavedConversation.current
+    ) {
+      console.log("💾 ChatId created, saving conversation immediately");
+      saveConversation();
+    }
+  }, [chatId, saveConversation]);
 
   // 检测首次响应并创建新 chatId 的 effect - 移除 createQueryString 依赖
   useEffect(() => {
