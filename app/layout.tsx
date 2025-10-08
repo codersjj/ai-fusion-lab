@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -43,8 +44,10 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <SidebarProvider>
-                <AppSidebar />
-                <main className="w-full">{children}</main>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <AppSidebar />
+                  <main className="w-full">{children}</main>
+                </Suspense>
               </SidebarProvider>
             </ThemeProvider>
           </UserProvider>

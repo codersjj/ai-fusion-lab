@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Moon, Sun, User2, Zap } from "lucide-react";
@@ -17,6 +17,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "../../hooks/use-mobile";
 import UsageCreditProgress from "./UsageCreditProgress";
+import {
+  collection,
+  DocumentData,
+  getDocs,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "@/config/firebaseConfig";
+import UserDetailContext from "@/context/UserDetailContext";
+import { useSearchParams } from "next/navigation";
+import { getRelativeTime } from "@/lib/utils";
+import ChatInputBoxContext, { Message } from "@/context/ChatInputBoxContext";
+import Link from "next/link";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -58,6 +72,73 @@ export function AppSidebar() {
   const { openMobile, setOpen } = useSidebar();
 
   const { isSignedIn, user } = useUser();
+  const { userDetail } = useContext(UserDetailContext);
+  const { setOnConversationSaved } = useContext(ChatInputBoxContext);
+  const [chatHistory, setChatHistory] = useState<DocumentData[]>([]);
+  const searchParams = useSearchParams();
+
+  const getChatHistory = useCallback(async () => {
+    if (!userDetail?.email) return;
+
+    // 注意：使用 where + orderBy 需要在 Firestore 中创建复合索引
+    // 如果没有索引，可以去掉 orderBy，在客户端排序
+    const q = query(
+      collection(db, "chatHistory"),
+      where("userEmail", "==", userDetail.email)
+      // orderBy("updatedAt", "desc") // 需要复合索引，暂时注释
+    );
+    const querySnapshot = await getDocs(q);
+
+    const historyData: DocumentData[] = [];
+    querySnapshot.forEach((doc) => {
+      // console.log("📄 Document:", doc.id, doc.data());
+      const currentTimeInSeconds = Math.floor(new Date().getTime() / 1000);
+      const updatedTimeInSeconds = doc.data().updatedAt.seconds;
+      const elapsedTimeInSeconds = currentTimeInSeconds - updatedTimeInSeconds;
+      const elapsedTime = getRelativeTime(elapsedTimeInSeconds);
+
+      const allMessages = Object.values(
+        doc.data().messages
+      ).flat() as Message[];
+      const userMessages = allMessages
+        .filter((message: Message) => message.role === "user")
+        .sort((a, b) => a.timestamp - b.timestamp);
+      const lastMessage = userMessages[userMessages.length - 1];
+      historyData.push({
+        ...doc.data(),
+        elapsedTime,
+        lastMessage: lastMessage.content,
+      });
+    });
+
+    // ✅ 在客户端按 updatedAt 降序排序
+    historyData.sort((a, b) => b.updatedAt.seconds - a.updatedAt.seconds);
+    setChatHistory(historyData);
+  }, [userDetail?.email]);
+
+  useEffect(() => {
+    getChatHistory();
+  }, [getChatHistory, searchParams]);
+
+  // 设置保存完成回调
+  useEffect(() => {
+    // 如果需要将 getChatHistory 存储到 state 中供其他组件调用
+    // 注意：必须使用箭头函数包装，不能直接传递 getChatHistory
+    // ✅ 正确: setOnConversationSaved(() => getChatHistory)
+    // ❌ 错误: setOnConversationSaved(getChatHistory)
+    // 原因：React 的 setState 会将直接传入的函数当作 updater function 立即执行，
+    // 导致存储的是函数的返回值（Promise）而不是函数本身
+    setOnConversationSaved(() => getChatHistory);
+
+    // 清理函数
+    return () => {
+      setOnConversationSaved(undefined);
+    };
+  }, [setOnConversationSaved, getChatHistory]);
+
+  useEffect(() => {
+    console.log("chatHistory", chatHistory);
+  }, [chatHistory]);
 
   useEffect(() => {
     if (isMobile) {
@@ -114,9 +195,11 @@ export function AppSidebar() {
             </div>
           </div>
           {user ? (
-            <Button size={"lg"} className="w-full mt-6 cursor-pointer">
-              + New Chat
-            </Button>
+            <Link href={"/"}>
+              <Button size={"lg"} className="w-full mt-6 cursor-pointer">
+                + New Chat
+              </Button>
+            </Link>
           ) : (
             <SignInButton mode="modal">
               <Button size={"lg"} className="w-full mt-6 cursor-pointer">
@@ -134,6 +217,22 @@ export function AppSidebar() {
                   Sign in to start chatting with multiple AI models
                 </p>
               )}
+              {chatHistory.map((chat) => (
+                <Link
+                  key={chat.chatId}
+                  href={`?chatId=${chat.chatId}`}
+                  className={`hover:bg-neutral-300 dark:hover:bg-neutral-700 p-2 rounded-md cursor-pointer ${
+                    searchParams.get("chatId") === chat.chatId
+                      ? "bg-neutral-200 dark:bg-neutral-800"
+                      : ""
+                  }`}
+                >
+                  <span className="text-sm text-neutral-500">
+                    {chat.elapsedTime}
+                  </span>
+                  <h3 className="text-base line-clamp-1">{chat.lastMessage}</h3>
+                </Link>
+              ))}
             </div>
           </SidebarGroup>
         </SidebarContent>

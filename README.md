@@ -76,6 +76,13 @@
 
 - [x] Send user message
 - [x] Call API to Generate AI response for each AI Model
-- [ ] Display result (msg conversation)
-- [ ] Push code to GitHub
-- [ ] Review with CodeRabbit
+- [x] Display result (msg conversation)
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit
+
+## 11. Save User Conversation
+
+- [x] Save conversation chat messages
+- [x] Fetch it and display it on screen
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit

@@ -14,6 +14,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Messages>(
     null as unknown as Messages
   );
+  const [onConversationSaved, setOnConversationSaved] = useState<
+    (() => void) | undefined
+  >(undefined);
 
   // 添加标志位，表示是否已经从数据库加载过数据
   const isInitialized = useRef(false);
@@ -86,7 +89,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   return (
     <UserDetailContext value={{ userDetail, setUserDetail }}>
       <ChatInputBoxContext
-        value={{ selectedAIModel, setSelectedAIModel, messages, setMessages }}
+        value={{
+          selectedAIModel,
+          setSelectedAIModel,
+          messages,
+          setMessages,
+          onConversationSaved,
+          setOnConversationSaved,
+        }}
       >
         {children}
       </ChatInputBoxContext>

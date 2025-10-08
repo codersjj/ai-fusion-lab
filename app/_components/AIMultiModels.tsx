@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState, memo } from "react";
+import { useContext, useState, memo, useEffect } from "react";
 import Image from "next/image";
 import { Lock, MessageSquare, Loader } from "lucide-react";
 import Markdown from "react-markdown";
@@ -23,7 +23,18 @@ function AIMultiModels() {
   const [modelList, setModelList] = useState(models);
   const { selectedAIModel, setSelectedAIModel, messages } =
     useContext(ChatInputBoxContext);
-  console.log("🚀 ~ AIMultiModels ~ messages:", messages);
+  // console.log("🚀 ~ AIMultiModels ~ messages:", messages);
+
+  useEffect(() => {
+    if (selectedAIModel) {
+      setModelList((prevList) =>
+        prevList.map((modelData) => ({
+          ...modelData,
+          enable: selectedAIModel[modelData.model]?.enable ?? modelData.enable,
+        }))
+      );
+    }
+  }, [selectedAIModel]);
 
   const handleSelectChange = async (parentModel: string, value: string) => {
     const newModel = {
@@ -166,7 +177,7 @@ function AIMultiModels() {
               {enable && !premium && (
                 <div className="flex flex-col gap-4">
                   {messages &&
-                    messages[model].map((message, index) => (
+                    messages[model]?.map((message, index) => (
                       <div
                         key={index}
                         className={`p-3 rounded-lg ${
