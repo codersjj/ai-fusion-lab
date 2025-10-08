@@ -82,7 +82,7 @@
 
 ## 11. Save User Conversation
 
-- [ ] Save conversation chat messages
-- [ ] Fetch it and display it on screen
-- [ ] Push code to GitHub
-- [ ] Review with CodeRabbit
+- [x] Save conversation chat messages
+- [x] Fetch it and display it on screen
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit

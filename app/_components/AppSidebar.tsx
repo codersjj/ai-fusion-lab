@@ -27,7 +27,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/config/firebaseConfig";
 import UserDetailContext from "@/context/UserDetailContext";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { getRelativeTime } from "@/lib/utils";
 import ChatInputBoxContext, { Message } from "@/context/ChatInputBoxContext";
 import Link from "next/link";
@@ -75,7 +75,7 @@ export function AppSidebar() {
   const { userDetail } = useContext(UserDetailContext);
   const { setOnConversationSaved } = useContext(ChatInputBoxContext);
   const [chatHistory, setChatHistory] = useState<DocumentData[]>([]);
-  const params = useParams();
+  const searchParams = useSearchParams();
 
   const getChatHistory = useCallback(async () => {
     if (!userDetail?.email) return;
@@ -118,7 +118,7 @@ export function AppSidebar() {
 
   useEffect(() => {
     getChatHistory();
-  }, [getChatHistory, params]);
+  }, [getChatHistory, searchParams]);
 
   // 设置保存完成回调
   useEffect(() => {
@@ -221,7 +221,11 @@ export function AppSidebar() {
                 <Link
                   key={chat.chatId}
                   href={`?chatId=${chat.chatId}`}
-                  className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-2 rounded-md cursor-pointer"
+                  className={`hover:bg-neutral-300 dark:hover:bg-neutral-700 p-2 rounded-md cursor-pointer ${
+                    searchParams.get("chatId") === chat.chatId
+                      ? "bg-neutral-200 dark:bg-neutral-800"
+                      : ""
+                  }`}
                 >
                   <span className="text-sm text-neutral-500">
                     {chat.elapsedTime}
