@@ -1,16 +1,69 @@
-import { useContext, useEffect } from "react";
+"use client";
+
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ArrowUp, Mic, Paperclip } from "lucide-react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import AIMultiModels from "./AIMultiModels";
-import ChatInputBoxContext from "@/context/ChatInputBoxContext";
+import ChatInputBoxContext, { Messages } from "@/context/ChatInputBoxContext";
 import { useDebouncedState } from "@/hooks/use-debounced-state";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "@/config/firebaseConfig";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
+import UserDetailContext from "@/context/UserDetailContext";
 
 function ChatInputBox() {
   const [inputValue, , setUserInput] = useDebouncedState("");
-  const { selectedAIModel, messages, setMessages } =
+  const { selectedAIModel, messages, setMessages, onConversationSaved } =
     useContext(ChatInputBoxContext);
+  const [chatId, setChatId] = useState("");
+  const params = useSearchParams();
+  const { userDetail } = useContext(UserDetailContext);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // 使用 ref 来追踪是否已经创建了新的 chatId
+  const hasCreatedNewChat = useRef(false);
+  // 追踪是否正在加载历史消息
+  const isLoadingHistory = useRef(false);
+
+  useEffect(() => {
+    const urlChatId = params.get("chatId");
+
+    if (urlChatId) {
+      // 直接在这里调用 getMessages，不依赖外部的 getMessages 函数
+      const loadMessages = async () => {
+        if (!urlChatId) return;
+
+        isLoadingHistory.current = true; // 标记正在加载
+
+        const docRef = doc(db, "chatHistory", urlChatId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const messages: Messages = docSnap.data().messages;
+          setMessages(messages);
+        } else {
+          isLoadingHistory.current = false;
+        }
+      };
+
+      loadMessages();
+    } else {
+      setMessages({} as Messages); // 使用空对象而不是 null
+      isLoadingHistory.current = false; // 确保重置标记
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]); // 只依赖 params
+
+  useEffect(() => {
+    const chatId = params.get("chatId");
+    // console.log("🚀 ~ ChatInputBox ~ chatId:", chatId);
+    setChatId(chatId || ""); // 如果没有 chatId，设置为空字符串
+    hasCreatedNewChat.current = false; // 重置标记
+    // 不要在这里重置 isLoadingHistory.current，让 getMessages 来控制
+  }, [params]);
 
   const handleSend = () => {
     if (inputValue.trim() === "") return;
@@ -22,7 +75,11 @@ function ChatInputBox() {
         if (selectedAIModel[modelKey].enable) {
           updated[modelKey] = [
             ...(updated[modelKey] ?? []),
-            { role: "user", content: inputValue },
+            {
+              role: "user",
+              content: inputValue,
+              timestamp: new Date().getTime(),
+            },
           ];
         }
       });
@@ -46,6 +103,7 @@ function ChatInputBox() {
             {
               role: "assistant",
               content: "Thinking...",
+              timestamp: new Date().getTime(),
               model: parentModel,
               loading: true,
             },
@@ -60,7 +118,7 @@ function ChatInputBox() {
             model: modelInfo.modelId,
             msg: [{ role: "user", content: currentInput }],
           });
-          console.log("🚀 ~ handleSend ~ res:", res);
+          // console.log("🚀 ~ handleSend ~ res:", res);
 
           const { aiResponse } = res.data;
 
@@ -73,6 +131,7 @@ function ChatInputBox() {
               updated[loadingIndex] = {
                 role: "assistant",
                 content: aiResponse,
+                timestamp: new Date().getTime(),
                 model: parentModel,
                 loading: false,
               };
@@ -81,6 +140,7 @@ function ChatInputBox() {
               updated.push({
                 role: "assistant",
                 content: aiResponse,
+                timestamp: new Date().getTime(),
                 model: parentModel,
                 loading: false,
               });
@@ -98,6 +158,7 @@ function ChatInputBox() {
               {
                 role: "assistant",
                 content: "Error fetching response.",
+                timestamp: new Date().getTime(),
                 model: parentModel,
                 loading: false,
               },
@@ -108,9 +169,83 @@ function ChatInputBox() {
     );
   };
 
+  const saveConversation = useCallback(async () => {
+    // 更严格的检查：确保 chatId 不为空字符串
+    if (!chatId || chatId === "" || !userDetail) {
+      return;
+    }
+    console.log("begin saveConversation", chatId);
+
+    const docRef = doc(db, "chatHistory", chatId);
+    const docSnap = await getDoc(docRef);
+    let createdAt = new Date();
+    if (docSnap.exists()) {
+      createdAt = docSnap.data()?.createdAt;
+    }
+    await setDoc(docRef, {
+      chatId,
+      userEmail: userDetail.email,
+      messages,
+      createdAt,
+      updatedAt: new Date(),
+    });
+
+    // 保存完成后触发回调
+    if (onConversationSaved) {
+      onConversationSaved();
+    }
+  }, [chatId, messages, userDetail, onConversationSaved]);
+
+  // 保存对话的 effect - 只依赖 messages
   useEffect(() => {
-    console.log("Messages updated:", messages);
+    // 检查 messages 是否为空对象或 null
+    const hasMessages = messages && Object.keys(messages).length > 0;
+
+    if (hasMessages) {
+      // 如果是刚加载完历史消息，重置加载标记后再判断是否保存
+      if (isLoadingHistory.current) {
+        console.log("📋 History loaded, resetting flag");
+        isLoadingHistory.current = false;
+        return; // 首次加载不保存
+      }
+
+      // 额外检查：确保 chatId 不为空字符串
+      if (!chatId || chatId === "") {
+        return;
+      }
+
+      saveConversation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
+
+  // 检测首次响应并创建新 chatId 的 effect - 移除 createQueryString 依赖
+  useEffect(() => {
+    // console.log("messages", messages);
+    // console.log("chatId", chatId);
+    // console.log("hasCreatedNewChat.current", hasCreatedNewChat.current);
+    // console.log("isLoadingHistory.current", isLoadingHistory.current);
+
+    // 只有在没有 chatId 且 messages 不为空且没有创建过新会话时才创建 UUID
+    // 并且确保不是在从历史会话切换到新建会话的过程中
+    if (
+      !messages ||
+      chatId ||
+      hasCreatedNewChat.current ||
+      isLoadingHistory.current
+    )
+      return;
+
+    const hasFirstResponse = Object.entries(messages).find(([, msgArr]) => {
+      return msgArr.length === 2 && msgArr[1].loading === false;
+    });
+    // console.log("🚀 ~ ChatInputBox ~ hasFirstResponse:", hasFirstResponse);
+    if (hasFirstResponse) {
+      hasCreatedNewChat.current = true; // 标记已创建
+      const newChatId = uuidv4();
+      router.push(`${pathname}?chatId=${newChatId}`);
+    }
+  }, [messages, router, pathname, chatId]);
 
   return (
     <div className="relative w-full h-full">

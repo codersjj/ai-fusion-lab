@@ -18,9 +18,10 @@ import { defaultModel } from "@/shared/models";
 }
 */
 
-type Message = {
+export type Message = {
   role: "user" | "assistant";
   content: string;
+  timestamp: number;
   model?: string;
   loading?: boolean;
 };
@@ -34,6 +35,8 @@ type ChatInputBoxContextType = {
   setSelectedAIModel: Dispatch<SetStateAction<typeof defaultModel>>;
   messages: Messages;
   setMessages: Dispatch<SetStateAction<Messages>>;
+  onConversationSaved?: () => void;
+  setOnConversationSaved: (callback: (() => void) | undefined) => void;
 };
 
 const ChatInputBoxContext = createContext<ChatInputBoxContextType>({
@@ -41,6 +44,8 @@ const ChatInputBoxContext = createContext<ChatInputBoxContextType>({
   setSelectedAIModel: () => {},
   messages: null as unknown as Messages,
   setMessages: () => {},
+  onConversationSaved: undefined,
+  setOnConversationSaved: () => {},
 });
 
 export default ChatInputBoxContext;
