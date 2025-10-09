@@ -144,3 +144,9 @@
     --sidebar-ring: oklch(0.439 0 0);
   }
 }
+
+@layer clerk {
+  .cl-drawerRoot {
+    z-index: 100;
+  }
+}

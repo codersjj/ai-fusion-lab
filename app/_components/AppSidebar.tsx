@@ -33,6 +33,8 @@ import ChatInputBoxContext, { Message } from "@/context/ChatInputBoxContext";
 import Link from "next/link";
 import axios from "axios";
 import { MAX_TOKEN_PER_DAY } from "@/constants";
+import PricingModal from "./PricingModal";
+import { useAuth } from "@/hooks/use-auth";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -79,6 +81,8 @@ export function AppSidebar() {
   const [chatHistory, setChatHistory] = useState<DocumentData[]>([]);
   const searchParams = useSearchParams();
   const [remainingToken, setRemainingToken] = useState(MAX_TOKEN_PER_DAY);
+
+  const hasPremiumAccess = useAuth();
 
   const getChatHistory = useCallback(async () => {
     if (!userDetail?.email) return;
@@ -258,10 +262,16 @@ export function AppSidebar() {
             </SignInButton>
           ) : (
             <div className="flex flex-col gap-3">
-              <UsageCreditProgress remaining={remainingToken} />
-              <Button className="cursor-pointer">
-                <Zap /> Upgrade Plan
-              </Button>
+              {!hasPremiumAccess && (
+                <>
+                  <UsageCreditProgress remaining={remainingToken} />
+                  <PricingModal>
+                    <Button className="w-full cursor-pointer">
+                      <Zap /> Upgrade Plan
+                    </Button>
+                  </PricingModal>
+                </>
+              )}
               <Button
                 className="flex justify-center items-center gap-2 border border-violet-300 w-full"
                 variant={"ghost"}
