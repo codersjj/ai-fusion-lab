@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { UserProvider } from "@/providers/UserProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./_components/AppSidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
                 <Suspense fallback={<div>Loading...</div>}>
                   <AppSidebar />
                   <main className="w-full">{children}</main>
+                  <Toaster />
                 </Suspense>
               </SidebarProvider>
             </ThemeProvider>

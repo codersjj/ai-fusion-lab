@@ -31,6 +31,8 @@ import { useSearchParams } from "next/navigation";
 import { getRelativeTime } from "@/lib/utils";
 import ChatInputBoxContext, { Message } from "@/context/ChatInputBoxContext";
 import Link from "next/link";
+import axios from "axios";
+import { MAX_TOKEN_PER_DAY } from "@/constants";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -73,9 +75,10 @@ export function AppSidebar() {
 
   const { isSignedIn, user } = useUser();
   const { userDetail } = useContext(UserDetailContext);
-  const { setOnConversationSaved } = useContext(ChatInputBoxContext);
+  const { setOnConversationSaved, messages } = useContext(ChatInputBoxContext);
   const [chatHistory, setChatHistory] = useState<DocumentData[]>([]);
   const searchParams = useSearchParams();
+  const [remainingToken, setRemainingToken] = useState(MAX_TOKEN_PER_DAY);
 
   const getChatHistory = useCallback(async () => {
     if (!userDetail?.email) return;
@@ -168,6 +171,16 @@ export function AppSidebar() {
     }
   };
 
+  const getRemainingTokenMsgs = async () => {
+    const result = await axios.post("/api/user-remaining-msg");
+    console.log("result", result);
+    setRemainingToken(result.data.remainingToken);
+  };
+
+  useEffect(() => {
+    getRemainingTokenMsgs();
+  }, [messages]);
+
   return (
     <div className="relative">
       <Sidebar className="p-3">
@@ -245,7 +258,7 @@ export function AppSidebar() {
             </SignInButton>
           ) : (
             <div className="flex flex-col gap-3">
-              <UsageCreditProgress />
+              <UsageCreditProgress remaining={remainingToken} />
               <Button className="cursor-pointer">
                 <Zap /> Upgrade Plan
               </Button>
