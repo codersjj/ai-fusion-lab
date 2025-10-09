@@ -93,3 +93,10 @@
 - [x] Free trial user token limit and renew after 24 hours
 - [x] Push code to GitHub
 - [x] Review with CodeRabbit
+
+## 13. Payment Subscription Pricing
+
+- [x] Clerk Subscription Billing Setup
+- [x] Display pricing table
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit

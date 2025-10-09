@@ -14,6 +14,7 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import UserDetailContext from "@/context/UserDetailContext";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 function ChatInputBox() {
   const [inputValue, , setUserInput] = useDebouncedState("");
@@ -24,6 +25,7 @@ function ChatInputBox() {
   const { userDetail } = useContext(UserDetailContext);
   const router = useRouter();
   const pathname = usePathname();
+  const hasPremiumAccess = useAuth();
 
   // 使用 ref 来追踪是否已经创建了新的 chatId
   const hasCreatedNewChat = useRef(false);
@@ -95,17 +97,20 @@ function ChatInputBox() {
   const handleSend = async () => {
     if (inputValue.trim() === "") return;
 
-    // 先检查剩余token数量（不消耗token）
-    const checkToken = await axios.post("/api/user-remaining-msg", {});
-    if (checkToken.data.remainingToken <= 0) {
-      toast.error("Maximum daily limit reached");
-      return;
-    }
+    if (!hasPremiumAccess) {
+      console.log("has no premium access, begin checking token");
+      // 先检查剩余token数量（不消耗token）
+      const checkToken = await axios.post("/api/user-remaining-msg", {});
+      if (checkToken.data.remainingToken <= 0) {
+        toast.error("Maximum daily limit reached");
+        return;
+      }
 
-    // 检查通过后，消耗token
-    await axios.post("/api/user-remaining-msg", {
-      token: 1,
-    });
+      // 检查通过后，消耗token
+      await axios.post("/api/user-remaining-msg", {
+        token: 1,
+      });
+    }
 
     // 标记用户主动发送了消息
     hasUserSentMessage.current = true;
@@ -114,6 +119,7 @@ function ChatInputBox() {
     setMessages((prev) => {
       const updated = { ...prev };
       Object.keys(selectedAIModel).forEach((modelKey) => {
+        if (!hasPremiumAccess && selectedAIModel[modelKey].premium) return;
         if (selectedAIModel[modelKey].enable) {
           updated[modelKey] = [
             ...(updated[modelKey] ?? []),
@@ -135,6 +141,7 @@ function ChatInputBox() {
     // 2. Fetch response from the API for each enabled model
     Object.entries(selectedAIModel).forEach(
       async ([parentModel, modelInfo]) => {
+        if (!hasPremiumAccess && selectedAIModel[parentModel].premium) return;
         if (!modelInfo.modelId || !modelInfo.enable) return;
 
         // Add loading placeholder before the API call
@@ -316,7 +323,7 @@ function ChatInputBox() {
       </div>
 
       {/* Fixed Chat Input  */}
-      <div className="absolute z-100 bottom-6 left-0 right-0 mx-auto rounded-3xl w-[50vw] min-h-30 max-h-[336px] overflow-auto bg-neutral-50 dark:bg-neutral-800 shadow-md dark:shadow-neutral-500/50 dark:shadow-lg">
+      <div className="absolute z-50 bottom-6 left-0 right-0 mx-auto rounded-3xl w-[50vw] min-h-30 max-h-[336px] overflow-auto bg-neutral-50 dark:bg-neutral-800 shadow-md dark:shadow-neutral-500/50 dark:shadow-lg">
         <Textarea
           className="md:px-4.5 md:py-3.5 w-full h-full min-h-30 resize-none rounded-3xl"
           placeholder="Ask me anything..."

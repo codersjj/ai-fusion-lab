@@ -18,12 +18,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import ChatInputBoxContext from "@/context/ChatInputBoxContext";
+import { useAuth } from "@/hooks/use-auth";
+import PricingModal from "./PricingModal";
 
 function AIMultiModels() {
   const [modelList, setModelList] = useState(models);
   const { selectedAIModel, setSelectedAIModel, messages } =
     useContext(ChatInputBoxContext);
-  // console.log("🚀 ~ AIMultiModels ~ messages:", messages);
+  const hasPremiumAccess = useAuth();
 
   useEffect(() => {
     if (selectedAIModel) {
@@ -39,7 +41,11 @@ function AIMultiModels() {
   const handleSelectChange = async (parentModel: string, value: string) => {
     const newModel = {
       ...selectedAIModel,
-      [parentModel]: { modelId: value, enable: true },
+      [parentModel]: {
+        ...selectedAIModel[parentModel],
+        modelId: value,
+        enable: true,
+      },
     };
 
     setSelectedAIModel(newModel);
@@ -110,7 +116,7 @@ function AIMultiModels() {
                       onValueChange={(value) =>
                         handleSelectChange(model, value)
                       }
-                      disabled={!enable || premium}
+                      disabled={!enable || (premium && !hasPremiumAccess)}
                     >
                       <SelectTrigger className="w-30 md:w-55">
                         <SelectValue placeholder={subModel[0].name} />
@@ -131,8 +137,12 @@ function AIMultiModels() {
                           {subModel
                             .filter(({ premium }) => premium)
                             .map(({ id, name }) => (
-                              <SelectItem key={name} value={id} disabled>
-                                {name} <Lock />
+                              <SelectItem
+                                key={name}
+                                value={id}
+                                disabled={!hasPremiumAccess}
+                              >
+                                {name} {!hasPremiumAccess && <Lock />}
                               </SelectItem>
                             ))}
                         </SelectGroup>
@@ -174,7 +184,7 @@ function AIMultiModels() {
                 maxHeight: "calc(75vh - 60px)",
               }}
             >
-              {enable && !premium && (
+              {enable && (!premium || hasPremiumAccess) && (
                 <div className="flex flex-col gap-4">
                   {messages &&
                     messages[model]?.map((message, index) => (
@@ -182,7 +192,7 @@ function AIMultiModels() {
                         key={index}
                         className={`p-3 rounded-lg ${
                           message.role === "user"
-                            ? "bg-blue-100 dark:bg-blue-950 self-end"
+                            ? "bg-neutral-200 dark:bg-neutral-700 self-end"
                             : "bg-gray-200 dark:bg-gray-600 self-start"
                         }`}
                       >
@@ -205,12 +215,14 @@ function AIMultiModels() {
                     ))}
                 </div>
               )}
-              {enable && premium && (
+              {enable && premium && !hasPremiumAccess && (
                 <div className="h-full flex justify-center items-center">
-                  <Button className="flex items-center cursor-pointer">
-                    <Lock />
-                    <span>Upgrade to unlock</span>
-                  </Button>
+                  <PricingModal>
+                    <Button className="flex items-center cursor-pointer">
+                      <Lock />
+                      <span>Upgrade to unlock</span>
+                    </Button>
+                  </PricingModal>
                 </div>
               )}
             </div>

@@ -94,17 +94,25 @@ const models = [
 ];
 
 export interface DefaultModel {
-  [key: string]: { modelId: string; enable: boolean };
+  [key: string]: {
+    modelId: string;
+    enable: boolean;
+    premium: boolean;
+  };
 }
 
 export const defaultModel: DefaultModel = {
-  GPT: { modelId: "gpt-4.1-mini", enable: true },
-  Gemini: { modelId: "gemini-2.5-flash-lite", enable: true },
-  DeepSeek: { modelId: "DeepSeek-R1", enable: true },
-  // Mistral: { modelId: "mistral-medium-2505" },
-  // Grok: { modelId: "grok-3-mini" },
-  // Cohere: { modelId: "cohere-command-a" },
-  // Llama: { modelId: "Llama-3.3-70B-Instruct" },
+  GPT: { modelId: "gpt-4.1-mini", enable: true, premium: false },
+  Gemini: {
+    modelId: "gemini-2.5-flash-lite",
+    enable: true,
+    premium: false,
+  },
+  DeepSeek: { modelId: "DeepSeek-R1", enable: true, premium: false },
+  Mistral: { modelId: "mistral-medium-2505", enable: false, premium: true },
+  Grok: { modelId: "grok-3-mini", enable: false, premium: true },
+  Cohere: { modelId: "cohere-command-a", enable: false, premium: true },
+  Llama: { modelId: "Llama-3.3-70B-Instruct", enable: false, premium: true },
 };
 
 export default models;
