@@ -86,3 +86,10 @@
 - [x] Fetch it and display it on screen
 - [x] Push code to GitHub
 - [x] Review with CodeRabbit
+
+## 12. Update Token and Free Trial Messages
+
+- [x] Update user tokens
+- [x] Free trial user token limit and renew after 24 hours
+- [x] Push code to GitHub
+- [x] Review with CodeRabbit

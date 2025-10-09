@@ -13,6 +13,7 @@ import { db } from "@/config/firebaseConfig";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import UserDetailContext from "@/context/UserDetailContext";
+import { toast } from "sonner";
 
 function ChatInputBox() {
   const [inputValue, , setUserInput] = useDebouncedState("");
@@ -91,8 +92,20 @@ function ChatInputBox() {
     });
   }, [params]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputValue.trim() === "") return;
+
+    // 先检查剩余token数量（不消耗token）
+    const checkToken = await axios.post("/api/user-remaining-msg", {});
+    if (checkToken.data.remainingToken <= 0) {
+      toast.error("Maximum daily limit reached");
+      return;
+    }
+
+    // 检查通过后，消耗token
+    await axios.post("/api/user-remaining-msg", {
+      token: 1,
+    });
 
     // 标记用户主动发送了消息
     hasUserSentMessage.current = true;
